@@ -1,0 +1,57 @@
+{:tasks {:requires    ([clojure.java.io :as io]
+                       [babashka.fs :as fs])
+         :init        (do (defn get-opts [args]
+                            (->> args
+                                 (partition 2)
+                                 (map vec)
+                                 (into {})
+                                 (merge {"out"      "/dev/null"
+                                         "mem"      "256m"
+                                         "level"    "info"
+                                         "workers"  "5000"
+                                         "calls"    "500"
+                                         "duration" "300"
+                                         "pause"    "10"})))
+
+                          (defn run-test [test-name scenario opts]
+                            (let [out   (opts "out")
+                                  level (opts "level")]
+                              (apply clojure (if (= out "-")
+                                               {}
+                                               {:out      :write
+                                                :out-file (io/file out)})
+                                     (str "-J-Xmx" (opts "mem"))
+                                     (str "-J-Xms" (opts "mem"))
+                                     (str "-J-XX:StartFlightRecording=dumponexit=true,maxsize=1g,filename=./report/" scenario "-" level "-" test-name ".jfr")
+                                     "-J-XX:+UnlockDiagnosticVMOptions"
+                                     "-J-XX:+DebugNonSafepoints"
+                                     (str "-X:" scenario ":" scenario "-" level)
+                                     (str "test.run-scenario/" test-name)
+                                     "scenario" scenario
+                                     (->> (select-keys opts ["workers" "calls" "duration" "pause"])
+                                          (mapcat identity))))))
+
+         test:speed   {:doc  "Run single speed test: bb test:speed <scenario> [[arg val]...]"
+                       :task (do (.mkdir (io/file "report"))
+                                 (run-test "speed-test" (first *command-line-args*) (get-opts (rest *command-line-args*))))}
+
+         test:mem     {:doc  "Run single memory test: bb test:mem <scenario> [[arg val]...]"
+                       :task (do (.mkdir (io/file "report"))
+                                 (run-test "mem-test" (first *command-line-args*) (get-opts (rest *command-line-args*))))}
+
+         test:run-all {:doc  "Run all scenarios"
+                       :task (let [opts (get-opts *command-line-args*)]
+                               #_(fs/delete-tree "report")
+                               #_(fs/create-dir "report")
+                               (doseq [[test-name level] [["speed-test" "info"]
+                                                          ["speed-test" "error"]
+                                                          ["mem-test" "info"]]
+                                       scenario          ["logback"
+                                                          "timbre"
+                                                          "tukki"]]
+                                 (run-test test-name scenario (assoc opts "level" level)))
+                               (clojure "-X:report" "report/generate-report")
+                               (println "Report available: ./report/index.html"))}
+
+         outdated     {:doc  "Check for outdated deps"
+                       :task (clojure "-M:outdated")}}}

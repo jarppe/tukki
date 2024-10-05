@@ -1,0 +1,13 @@
+*
+
+!/resources
+!/resources/**
+!/src
+!/src/**
+!/test
+!/test/**
+!/.cljfmt.edn
+!/.gitignore
+!/bb.edn
+!/deps.edn
+!/README.md
