@@ -96,7 +96,7 @@
                              last-ns)))]
     (.append out " [")
     (.append out ^String the-ns-name)
-    (when (pos? line)
+    (when (and line (pos? line))
       (.append out ":")
       (.append out (str line)))
     (.append out "] ")))
@@ -150,7 +150,7 @@
     (append-event out (java.time.Instant/now) "foo.bar.boz" 1234 :info ["hello"] nil)
     (str out))
   ;;=> "info  [f.b.boz:1234] hello \n"
-  
+
   (do (defn foo-bar []
         (throw (ex-info "oh no" {:bad true})))
       (defn bar!foo []
