@@ -13,7 +13,7 @@
                             -1
                             level
                             (cond-> (if format?
-                                      [(format (first message) args)]
+                                      [(format message args)]
                                       (cons message args))
                               ex (conj ex))))
   nil)
