@@ -6,6 +6,19 @@
 (set! *warn-on-reflection* true)
 
 
+(defn format-message [message args]
+  (let [matcher (re-matcher #"\{\}" message)
+        builder (StringBuilder.)]
+    (loop [start 0
+           args  args]
+      (if (.find matcher)
+        (do (.append builder (subs message start (.start matcher)))
+            (.append builder (str (first args)))
+            (recur (.end matcher)
+                   (rest args)))
+        (cons (.toString builder) args)))))
+
+
 (defn print-log-message [logger-name level format? message args ex]
   (when (impl/logger-enabled-for? logger-name level)
     (impl/print-log-message (-> state/state :appender (eval))
@@ -13,7 +26,7 @@
                             -1
                             level
                             (cond-> (if format?
-                                      [(format message args)]
+                                      (format-message message args)
                                       (cons message args))
                               ex (conj ex))))
   nil)

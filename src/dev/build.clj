@@ -82,7 +82,7 @@
 
 
 #_{:clj-kondo/ignore [:clojure-lsp/unused-public-var]}
-(defn compile-all []
+(defn compile-all [_]
   (doto (b/create-basis)
     (clean)
     (compile-classes)))
