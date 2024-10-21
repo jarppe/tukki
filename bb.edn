@@ -1,5 +1,8 @@
-{:tasks {build:jar {:doc  "Build JAR distribution"
-                    :task (clojure "-T:build build-all")}
+{:tasks {build:jar    {:doc  "Build JAR distribution"
+                       :task (clojure "-T:build build-all")}
 
-         outdated  {:doc  "Check for outdated deps"
-                    :task (clojure "-M:outdated")}}}
+         build:deploy {:doc  "Build and deploy to Clojars"
+                       :task (clojure "-T:build deploy")}
+
+         outdated     {:doc  "Check for outdated deps"
+                       :task (clojure "-M:outdated")}}}
