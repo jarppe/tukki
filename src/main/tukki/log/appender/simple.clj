@@ -71,11 +71,12 @@
     (.append out " ")
     (.append out (pr-str data)))
   (.append out "\n")
-  (if nested?
-    (append-ex-stacktrace-element out (-> ex (.getStackTrace) (aget 0)))
-    (doseq [ste (-> ex (.getStackTrace))]
-      (append-ex-stacktrace-element out ste)))
-  (.append out "\n")
+  (let [st (-> ex (.getStackTrace))]
+    (if nested?
+      (when (pos? (alength st))
+        (append-ex-stacktrace-element out (aget st 0)))
+      (doseq [ste st]
+        (append-ex-stacktrace-element out ste))))
   out)
 
 
