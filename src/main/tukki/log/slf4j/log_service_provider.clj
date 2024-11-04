@@ -29,6 +29,8 @@
 
 
 (defn -initialize [_this]
+  ;; Initialize tukki:
+  (require 'tukki.log.impl)
   ;; Configure clojure.tools.logging to use SLF4J, which in turn is configured to use this library:
   (System/setProperty "clojure.tools.logging.factory"
                       "clojure.tools.logging.impl/slf4j-factory")
