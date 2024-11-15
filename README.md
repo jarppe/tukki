@@ -15,7 +15,6 @@ The major differences to existing solutions are:
 - The main logging API is done with macros that do not emit any code if the
   logging level is lower than configured level
 - About 7x faster than logback
-- No dependencies
 
 ## Clojure friendly output
 
